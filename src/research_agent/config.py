@@ -42,6 +42,15 @@ class AppConfig(BaseModel):
     ingestion: IngestionConfig = Field(default_factory=IngestionConfig)
     output: OutputConfig = Field(default_factory=OutputConfig)
     rss_feeds: list[RssFeedConfig] = Field(default_factory=list)
+    api: "ApiConfig" = Field(default_factory=lambda: ApiConfig())
+
+
+class ApiConfig(BaseModel):
+    host: str = "0.0.0.0"
+    port: int = 8000
+    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
+    jwt_secret: str = "change-me-in-production"
+    jwt_expire_minutes: int = 60 * 24 * 7
 
 
 class Settings(BaseSettings):
@@ -49,6 +58,7 @@ class Settings(BaseSettings):
 
     data_dir: Path | None = None
     timezone: str | None = None
+    jwt_secret: str | None = None
 
 
 def load_config(config_path: Path | None = None) -> AppConfig:
@@ -66,6 +76,8 @@ def load_config(config_path: Path | None = None) -> AppConfig:
         config.data_dir = settings.data_dir
     if settings.timezone is not None:
         config.timezone = settings.timezone
+    if settings.jwt_secret is not None:
+        config.api.jwt_secret = settings.jwt_secret
 
     config.data_dir.mkdir(parents=True, exist_ok=True)
     return config

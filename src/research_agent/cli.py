@@ -204,6 +204,28 @@ def list_runs(
         )
 
 
+@app.command("api")
+def serve_api(
+    config: Annotated[Path | None, typer.Option("--config")] = None,
+    host: Annotated[str | None, typer.Option("--host")] = None,
+    port: Annotated[int | None, typer.Option("--port")] = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+) -> None:
+    """Start the REST API server for the web frontend."""
+    _setup_logging(verbose)
+    import uvicorn
+
+    from research_agent.api.app import app as fastapi_app
+
+    cfg = load_config(config)
+    uvicorn.run(
+        fastapi_app,
+        host=host or cfg.api.host,
+        port=port or cfg.api.port,
+        reload=False,
+    )
+
+
 @app.command("serve")
 def serve_scheduler(
     config: Annotated[Path | None, typer.Option("--config")] = None,

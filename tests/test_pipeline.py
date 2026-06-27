@@ -81,7 +81,7 @@ def test_markdown_output_contains_sources(pipeline):
         documents=docs,
         summary=build_simple_summary(created, docs),
     )
-    output = write_markdown_output(run_output, runner.output_dir)
+    output = write_markdown_output(run_output, runner.base_output_dir)
     content = output.read_text(encoding="utf-8")
     assert "Markdown Topic" in content
     assert "Sources Consulted" in content

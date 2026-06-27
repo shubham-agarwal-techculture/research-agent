@@ -46,7 +46,12 @@ class ResearchPipeline:
         self.db = db
         self.client = client or httpx.Client(timeout=30.0)
         self.connectors = connectors or build_connectors(config, client=self.client)
-        self.output_dir = config.data_dir / config.output.directory
+        self.base_output_dir = config.data_dir / config.output.directory
+
+    def _output_dir_for(self, subscription: TopicSubscription) -> Path:
+        if subscription.user_id is not None:
+            return self.base_output_dir / f"user_{subscription.user_id}"
+        return self.base_output_dir
 
     def run_for_subscription(self, subscription: TopicSubscription, attempt: int = 1) -> ResearchRun:
         if subscription.id is None:
@@ -72,7 +77,7 @@ class ResearchPipeline:
                 documents=documents,
                 summary=summary,
             )
-            output_path = write_markdown_output(run_output, self.output_dir)
+            output_path = write_markdown_output(run_output, self._output_dir_for(subscription))
             self.db.save_documents(run.id, documents)
             self.db.complete_run(
                 run.id,
@@ -119,8 +124,8 @@ class ResearchPipeline:
         assert last_error is not None
         raise last_error
 
-    def run_all_active(self) -> list[ResearchRun]:
-        subscriptions = self.db.list_subscriptions(active_only=True)
+    def run_all_active(self, user_id: int | None = None) -> list[ResearchRun]:
+        subscriptions = self.db.list_subscriptions(active_only=True, user_id=user_id)
         results: list[ResearchRun] = []
 
         for subscription in subscriptions:

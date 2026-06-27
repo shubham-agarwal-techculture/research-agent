@@ -18,8 +18,10 @@ class SubscriptionService:
         name: str,
         description: str = "",
         search_queries: list[str] | None = None,
+        user_id: int | None = None,
     ) -> TopicSubscription:
         subscription = TopicSubscription(
+            user_id=user_id,
             name=name,
             description=description,
             search_queries=search_queries or [name],
@@ -27,11 +29,16 @@ class SubscriptionService:
         )
         return self.db.create_subscription(subscription)
 
-    def subscribe_predefined(self, predefined_id: str, topics_path: Path | None = None) -> TopicSubscription:
-        existing = self.db.get_subscription_by_predefined(predefined_id)
+    def subscribe_predefined(
+        self,
+        predefined_id: str,
+        topics_path: Path | None = None,
+        user_id: int | None = None,
+    ) -> TopicSubscription:
+        existing = self.db.get_subscription_by_predefined(predefined_id, user_id=user_id)
         if existing:
             if not existing.active:
-                return self.db.set_subscription_active(existing.id, True)  # type: ignore[arg-type]
+                return self.db.set_subscription_active(existing.id, True, user_id=user_id)  # type: ignore[arg-type]
             return existing
 
         topics = {topic["id"]: topic for topic in load_predefined_topics(topics_path)}
@@ -40,6 +47,7 @@ class SubscriptionService:
 
         topic = topics[predefined_id]
         subscription = TopicSubscription(
+            user_id=user_id,
             name=topic["name"],
             description=topic.get("description", ""),
             predefined_id=predefined_id,
@@ -51,11 +59,11 @@ class SubscriptionService:
     def list_predefined(self, topics_path: Path | None = None) -> list[dict]:
         return load_predefined_topics(topics_path)
 
-    def get(self, subscription_id: int) -> TopicSubscription | None:
-        return self.db.get_subscription(subscription_id)
+    def get(self, subscription_id: int, user_id: int | None = None) -> TopicSubscription | None:
+        return self.db.get_subscription(subscription_id, user_id=user_id)
 
-    def list(self, active_only: bool = False) -> list[TopicSubscription]:
-        return self.db.list_subscriptions(active_only=active_only)
+    def list(self, active_only: bool = False, user_id: int | None = None) -> list[TopicSubscription]:
+        return self.db.list_subscriptions(active_only=active_only, user_id=user_id)
 
     def update(
         self,
@@ -64,8 +72,9 @@ class SubscriptionService:
         name: str | None = None,
         description: str | None = None,
         search_queries: list[str] | None = None,
+        user_id: int | None = None,
     ) -> TopicSubscription | None:
-        subscription = self.db.get_subscription(subscription_id)
+        subscription = self.db.get_subscription(subscription_id, user_id=user_id)
         if subscription is None:
             return None
 
@@ -78,11 +87,11 @@ class SubscriptionService:
 
         return self.db.update_subscription(subscription)
 
-    def pause(self, subscription_id: int) -> TopicSubscription | None:
-        return self.db.set_subscription_active(subscription_id, False)
+    def pause(self, subscription_id: int, user_id: int | None = None) -> TopicSubscription | None:
+        return self.db.set_subscription_active(subscription_id, False, user_id=user_id)
 
-    def resume(self, subscription_id: int) -> TopicSubscription | None:
-        return self.db.set_subscription_active(subscription_id, True)
+    def resume(self, subscription_id: int, user_id: int | None = None) -> TopicSubscription | None:
+        return self.db.set_subscription_active(subscription_id, True, user_id=user_id)
 
-    def delete(self, subscription_id: int) -> bool:
-        return self.db.delete_subscription(subscription_id)
+    def delete(self, subscription_id: int, user_id: int | None = None) -> bool:
+        return self.db.delete_subscription(subscription_id, user_id=user_id)

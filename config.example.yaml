@@ -21,6 +21,15 @@ output:
   format: markdown
   directory: outputs
 
+api:
+  host: 0.0.0.0
+  port: 8000
+  cors_origins:
+    - http://localhost:5173
+    - http://127.0.0.1:5173
+  jwt_secret: change-me-in-production
+  jwt_expire_minutes: 10080
+
 rss_feeds:
   - name: MIT Technology Review AI
     url: https://www.technologyreview.com/topic/artificial-intelligence/feed/

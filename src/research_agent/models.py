@@ -17,6 +17,7 @@ class RunStatus(StrEnum):
 
 class TopicSubscription(BaseModel):
     id: int | None = None
+    user_id: int | None = None
     name: str
     description: str = ""
     predefined_id: str | None = None
@@ -53,3 +54,10 @@ class RunOutput(BaseModel):
     run: ResearchRun
     documents: list[SourceDocument]
     summary: str = ""
+
+
+class User(BaseModel):
+    id: int | None = None
+    email: str
+    display_name: str = ""
+    created_at: datetime | None = None

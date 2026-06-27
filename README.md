@@ -18,7 +18,41 @@ Phase 0 delivers the foundation described in `REQUIREMENTS.md`:
 
 Phase 1 will add the multi-step agentic analysis loop and idea synthesis.
 
-## Quick start
+## Web UI (decoupled frontend)
+
+The project includes a **React SPA** (`frontend/`) and a **FastAPI REST API** that wraps the same core engine. Each user gets an isolated account with their own subscriptions and digests.
+
+### Start the API
+
+```powershell
+research-agent api
+# or: research-agent-api
+```
+
+API runs at `http://localhost:8000` by default. OpenAPI docs: `http://localhost:8000/docs`
+
+### Start the frontend
+
+```powershell
+cd frontend
+Copy-Item .env.example .env
+npm install
+npm run dev
+```
+
+UI runs at `http://localhost:5173` and talks to the API via `VITE_API_URL`.
+
+### Web features
+
+- User registration and login (JWT)
+- Browse and subscribe to predefined topics
+- Create custom subscriptions
+- Trigger research runs and view markdown digests
+- Per-user data isolation in SQLite
+
+Set a strong `api.jwt_secret` in `config.yaml` (or `RESEARCH_AGENT_JWT_SECRET`) before deploying publicly.
+
+## CLI quick start
 
 ### 1. Install
 
@@ -81,19 +115,16 @@ Runs all active subscriptions at the configured times (default: 09:00 and 21:00)
 | `research-agent run -s <id>` | Run one subscription |
 | `research-agent runs` | List recent runs |
 | `research-agent serve` | Start twice-daily scheduler |
+| `research-agent api` | Start REST API for web UI |
 
 ## Project layout
 
 ```
 src/research_agent/
+  api/             # FastAPI REST API
   cli.py           # CLI commands
-  config.py        # YAML + env configuration
-  subscriptions.py # Subscription CRUD
-  sources.py       # arXiv + RSS connectors
-  pipeline.py      # Run orchestration + retries
-  scheduler.py     # APScheduler integration
-  output.py        # Markdown delivery
-  storage.py       # SQLite persistence
+  ...
+frontend/          # React SPA (Vite + TypeScript)
 predefined_topics.yaml
 config.example.yaml
 tests/
