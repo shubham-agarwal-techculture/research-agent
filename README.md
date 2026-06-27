@@ -29,7 +29,9 @@ research-agent api
 # or: research-agent-api
 ```
 
-API runs at `http://localhost:8000` by default. OpenAPI docs: `http://localhost:8000/docs`
+API runs at `http://localhost:8001` by default. OpenAPI docs: `http://localhost:8001/docs`
+
+> **Note:** Port 8000 is commonly used by other local apps. If registration returns "Not Found", another service may be bound to 8000 — start the API with `research-agent api` (port 8001) or set `api.port` in `config.yaml`.
 
 ### Start the frontend
 

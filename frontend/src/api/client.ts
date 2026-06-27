@@ -7,7 +7,7 @@ import type {
   User,
 } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL?.trim() || "";
 
 export class ApiError extends Error {
   status: number;

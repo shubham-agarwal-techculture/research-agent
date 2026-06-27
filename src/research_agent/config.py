@@ -47,7 +47,7 @@ class AppConfig(BaseModel):
 
 class ApiConfig(BaseModel):
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8001
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
     jwt_secret: str = "change-me-in-production"
     jwt_expire_minutes: int = 60 * 24 * 7
