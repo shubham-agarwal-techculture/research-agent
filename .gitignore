@@ -25,3 +25,5 @@ Desktop.ini
 # Logs and local data
 *.log
 .cache/
+data/
+config.yaml

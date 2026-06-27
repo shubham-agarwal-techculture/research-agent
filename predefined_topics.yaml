@@ -1,0 +1,21 @@
+topics:
+  - id: ai-agents
+    name: AI Agents
+    description: Autonomous agents, tool use, multi-agent systems, and agentic workflows.
+    search_queries:
+      - agentic AI
+      - LLM agents tool use
+
+  - id: protein-folding
+    name: Protein Folding
+    description: Structure prediction, molecular dynamics, and computational biology advances.
+    search_queries:
+      - protein folding
+      - AlphaFold structure prediction
+
+  - id: quantum-computing
+    name: Quantum Computing
+    description: Quantum algorithms, hardware, and near-term applications.
+    search_queries:
+      - quantum computing algorithms
+      - quantum error correction

@@ -1,0 +1,28 @@
+# Copy to config.yaml and adjust as needed.
+
+data_dir: data
+timezone: UTC
+
+scheduler:
+  run_times:
+    - "09:00"
+    - "21:00"
+  retry:
+    max_attempts: 3
+    delay_seconds: 60
+
+ingestion:
+  max_results_per_source: 5
+  enabled_sources:
+    - arxiv
+    - rss
+
+output:
+  format: markdown
+  directory: outputs
+
+rss_feeds:
+  - name: MIT Technology Review AI
+    url: https://www.technologyreview.com/topic/artificial-intelligence/feed/
+  - name: arXiv cs.AI (RSS)
+    url: https://rss.arxiv.org/rss/cs.AI
