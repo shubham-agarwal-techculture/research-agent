@@ -27,6 +27,25 @@ def content_hash(title: str, url: str) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def format_arxiv_search_query(query: str) -> str:
+    """Build an arXiv API search_query value for a subscription keyword."""
+    query = query.strip()
+    if not query:
+        return "all:*"
+    if " " in query:
+        return f'all:"{query}"'
+    return f"all:{query}"
+
+
+def matches_search_query(query: str, text: str) -> bool:
+    """Match a query against text using word boundaries (avoids substring false positives)."""
+    query = query.strip().lower()
+    if not query:
+        return False
+    pattern = r"(?<!\w)" + re.escape(query).replace(r"\ ", r"\s+") + r"(?!\w)"
+    return re.search(pattern, text.lower()) is not None
+
+
 def dedupe_documents(documents: Iterable[SourceDocument]) -> list[SourceDocument]:
     seen: set[str] = set()
     unique: list[SourceDocument] = []
@@ -61,10 +80,10 @@ class ArxivConnector(SourceConnector):
 
         for query in subscription.search_queries:
             params = {
-                "search_query": f"all:{query}",
+                "search_query": format_arxiv_search_query(query),
                 "start": 0,
                 "max_results": per_query,
-                "sortBy": "submittedDate",
+                "sortBy": "relevance",
                 "sortOrder": "descending",
             }
             try:
@@ -120,7 +139,7 @@ class RssConnector(SourceConnector):
 
     def fetch(self, subscription: TopicSubscription, max_results: int) -> list[SourceDocument]:
         documents: list[SourceDocument] = []
-        keywords = [query.lower() for query in subscription.search_queries]
+        queries = [query for query in subscription.search_queries if query.strip()]
 
         for feed in self.feeds:
             try:
@@ -135,8 +154,8 @@ class RssConnector(SourceConnector):
                 title = getattr(entry, "title", "") or ""
                 summary = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
                 link = getattr(entry, "link", "") or ""
-                haystack = f"{title} {summary}".lower()
-                if keywords and not any(keyword in haystack for keyword in keywords):
+                haystack = f"{title} {summary}"
+                if queries and not any(matches_search_query(query, haystack) for query in queries):
                     continue
 
                 published_at = None
